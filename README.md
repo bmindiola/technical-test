@@ -44,7 +44,7 @@ docker-compose run --rm python-producer
 El script te pedirá los datos `orderId`, `customerId` y `productIds`. Por ejemplo:
 
 ```
-Enter orderId: order-001
+Enter orderId: order-088
 Enter customerId: customer-001
 Enter productId (or leave blank to finish): product-001
 Enter productId (or leave blank to finish): product-002
@@ -71,7 +71,7 @@ Ejemplo de salida de una orden procesada:
 ```json
 {
   "_id": ObjectId("617a66b3b4323a1e8c78a45c"),
-  "orderId": "order-001",
+  "orderId": "order-006",
   "customerId": "customer-001",
   "products": [
     {

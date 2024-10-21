@@ -1,0 +1,14 @@
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: test-group
+      auto-offset-reset: earliest
+  data:
+    mongodb:
+      uri: mongodb://root:passw0rd@mongodb:27017/workerdb?authSource=admin
+  enrichment:
+    product-api:
+      base-url: http://localhost:5060
+    customer-api:
+      base-url: http://localhost:5050

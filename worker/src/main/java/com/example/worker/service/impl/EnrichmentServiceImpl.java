@@ -1,6 +1,5 @@
 package com.example.worker.service.impl;
 
-import com.example.worker.consumer.OrderConsumer;
 import com.example.worker.model.Customer;
 import com.example.worker.model.Product;
 import com.example.worker.service.EnrichmentService;
@@ -10,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import org.springframework.beans.factory.annotation.Value;
+import reactor.util.retry.Retry;
+
+import java.time.Duration;
 
 
 @Service
@@ -35,11 +37,15 @@ public class EnrichmentServiceImpl implements EnrichmentService {
         logger.info("Product baseUrl: {}", productApiBaseUrl);
 
         return webClient.get()
-                .uri(productApiBaseUrl + "/product?id=" + productId)
+                .uri(productApiBaseUrl + "/product?id=" + productId)  // Construct the full URL for the product API
                 .retrieve()
                 .bodyToMono(Product.class)
                 .doOnNext(product -> logger.info("Product enriched: {}", product))
-                .doOnError(error -> logger.error("Error calling product enrichment service: {}", error.getMessage()));
+                .doOnError(error -> logger.error("Error calling product enrichment service: {}", error.getMessage()))
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))  // Retry 3 times with exponential backoff
+                        .maxBackoff(Duration.ofMinutes(1))  // Maximum backoff time between retries
+                        .doBeforeRetry(retrySignal -> logger.warn("Retrying product enrichment due to error: {}", retrySignal.failure().getMessage()))  // Log before each retry
+                );
     }
 
     @Override
@@ -48,12 +54,17 @@ public class EnrichmentServiceImpl implements EnrichmentService {
         logger.info("Customer baseUrl: {}", customerApiBaseUrl);
 
         return webClient.get()
-                .uri(customerApiBaseUrl + "/customer?id=" + customerId)  // Construir la URL completa
+                .uri(customerApiBaseUrl + "/customer?id=" + customerId)  // Construct the full URL for the customer API
                 .retrieve()
                 .bodyToMono(Customer.class)
                 .doOnNext(customer -> logger.info("Customer enriched: {}", customer))
-                .doOnError(error -> logger.error("Error calling customer enrichment service: {}", error.getMessage()));
+                .doOnError(error -> logger.error("Error calling customer enrichment service: {}", error.getMessage()))
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))  // Retry 3 times with exponential backoff
+                        .maxBackoff(Duration.ofMinutes(1))  // Maximum backoff time between retries
+                        .doBeforeRetry(retrySignal -> logger.warn("Retrying customer enrichment due to error: {}", retrySignal.failure().getMessage()))  // Log before each retry
+                );
     }
+
 }
 
 

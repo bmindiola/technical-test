@@ -67,6 +67,8 @@ services:
     build: ./worker
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     networks:
       - app-network
     depends_on:

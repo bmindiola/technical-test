@@ -2,28 +2,23 @@ spring:
   application:
     name: worker
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     consumer:
-      group-id: ${KAFKA_CONSUMER_GROUP_ID:order-consumer-group}
+      group-id: ${KAFKA_CONSUMER_GROUP_ID}
       auto-offset-reset: earliest
     listener:
       ack-mode: record
 
   data:
     mongodb:
-      uri: mongodb://root:passw0rd@mongodb:27017/workerdb?authSource=admin
+      uri: ${MONGODB_URI}
 
     redis:
-      host: ${REDIS_HOST:redis}
-      port: ${REDIS_PORT:6379}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
   enrichment:
     product-api:
-      base-url: ${PRODUCT_API_URL:http://product-api:5060}
+      base-url: ${PRODUCT_API_URL}
     customer-api:
-      base-url: ${CUSTOMER_API_URL:http://customer-api:5050}
-
-  logging:
-    level:
-      root: INFO
-      org.springframework.kafka: DEBUG
+      base-url: ${CUSTOMER_API_URL}

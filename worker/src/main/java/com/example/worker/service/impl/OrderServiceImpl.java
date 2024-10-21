@@ -1,6 +1,5 @@
 package com.example.worker.service.impl;
 
-import com.example.worker.consumer.OrderConsumer;
 import com.example.worker.exception.OrderProcessingException;
 import com.example.worker.model.Order;
 import com.example.worker.repository.OrderRepository;
@@ -60,9 +59,8 @@ public class OrderServiceImpl implements OrderService {
                 })
                 .flatMap(savedOrder -> retryService.releaseLock(order.getOrderId()))
                 .onErrorResume(error -> retryService.handleRetry(order).then(Mono.error(error)))
-                .subscribe(
-                        success -> logger.info("Order processed successfully: " + order.getOrderId()),
-                        error -> logger.info("Error processing order: " + error.getMessage())
-                );
+                .doOnSuccess(success -> logger.info("Order processed successfully: {}", order.getOrderId()))
+                .doOnError(error -> logger.error("Error processing order: {}", error.getMessage()))
+                .subscribe();
     }
 }

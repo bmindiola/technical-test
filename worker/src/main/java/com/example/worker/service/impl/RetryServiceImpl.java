@@ -37,16 +37,29 @@ public class RetryServiceImpl implements RetryService {
     @Override
     public Mono<Boolean> acquireLock(String orderId) {
         String lockKey = "order_lock_" + orderId;
-        logger.info("Trying to acquire lock for orderId: {}", orderId);
-        logger.info("LockKey: {}", lockKey);
         return reactiveRedisTemplate.opsForValue()
                 .setIfAbsent(lockKey, "1")
-                .flatMap(success -> reactiveRedisTemplate.expire(lockKey, Duration.ofMinutes(10)).thenReturn(success));
+                .flatMap(success -> {
+                    if (success) {
+                        logger.info("Lock acquired for order {}", orderId);
+                        return reactiveRedisTemplate.expire(lockKey, Duration.ofMinutes(10)).thenReturn(true);
+                    } else {
+                        logger.warn("Failed to acquire lock for order {}", orderId);
+                        return Mono.just(false);
+                    }
+                });
     }
 
     @Override
     public Mono<Void> releaseLock(String orderId) {
         String lockKey = "order_lock_" + orderId;
-        return reactiveRedisTemplate.delete(lockKey).then();
+        return reactiveRedisTemplate.delete(lockKey)
+                .doOnSuccess(deleted -> {
+                    if (deleted > 0) {
+                        logger.info("Lock released for order {}", orderId);
+                    } else {
+                        logger.warn("Failed to release lock for order {}", orderId);
+                    }
+                }).then();
     }
 }

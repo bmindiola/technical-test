@@ -18,9 +18,7 @@ public class OrderConsumer {
 
     @KafkaListener(topics = "orders", groupId = "order-consumer-group")
     public void listen(Order order) {
-        logger.info("-------------------------------------------------------------------------------------------------------------");
-        logger.info("Mensaje recibido: {}", order.toString());
-        logger.info("-------------------------------------------------------------------------------------------------------------");
+        logger.info("Message Received: {}", order.toString());
         orderService.processOrder(order);
     }
 }

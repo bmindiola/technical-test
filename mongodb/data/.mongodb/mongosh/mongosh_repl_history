@@ -1,5 +1,11 @@
 db.orders.find().pretty()
 use workerdb
+db.orders.find().pretty()
+use workerdb
+db.orders.find().pretty()
+use workerdb
+db.orders.find().pretty()
+use workerdb
 db.products.insertOne({ productId: "product-002", name: "Smartphone", description: "Latest model smartphone with high-end specs", price: 699.99, stock: 250 })
 use workerdb
 db.products.insertOne({ productId: "product-002", name: "Smartphone", description: "Latest model smartphone with high-end specs", price: 699.99, stock: 250 })
