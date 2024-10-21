@@ -1,0 +1,31 @@
+db.orders.find().pretty()
+use workerdb
+db.products.insertOne({ productId: "product-002", name: "Smartphone", description: "Latest model smartphone with high-end specs", price: 699.99, stock: 250 })
+use workerdb
+db.products.insertOne({ productId: "product-002", name: "Smartphone", description: "Latest model smartphone with high-end specs", price: 699.99, stock: 250 })
+use workerdb
+db.orders.find().pretty()
+show collections
+use workerdb
+show dbs
+db.orders.find().pretty()
+show orders
+show collections
+use workerdb
+user workerdb
+show dbs
+show
+use workerdb
+user workerdb
+show dbs
+show collections;
+use workerdb
+show workerdb
+show dbs
+db.products.insertOne({ productId: "product-001", name: "Laptop", description: "Gaming laptop with 16GB RAM", price: 999, stock: 50 })
+db.customers.insertOne({ customerId: "customer-001", name: "John Doe", email: "john.doe@example.com", phone: "+123456789", status: "active" })
+db.createCollection("orders")
+db.createCollection("products")
+db.createCollection("customers")
+use workerdb
+show dbs;ow dbs;

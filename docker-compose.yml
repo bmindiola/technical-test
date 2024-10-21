@@ -1,0 +1,90 @@
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - app-network
+  
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+    networks:
+      - app-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: passw0rd
+    volumes:
+      - ./mongodb/data:/data/db
+    networks:
+      - app-network
+
+  customer-api:
+    build: ./go-services/customer-api
+    ports:
+      - "5050:5050"
+    networks:
+      - app-network
+    depends_on:
+      - mongodb
+  
+  product-api:
+    build: ./go-services/product-api
+    ports:
+      - "5060:5060"
+    networks:
+      - app-network
+    depends_on:
+      - mongodb
+  
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  worker:
+    build: ./worker
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    depends_on:
+      - kafka
+      - customer-api
+      - product-api
+      - mongodb
+  
+  python-producer:
+    build:
+      context: ./send_orders
+    depends_on:
+      - kafka 
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
